@@ -12,6 +12,26 @@ type Product struct {
 	Id, Quantity      int
 }
 
+func GetProduct(id int) Product {
+	connection := db.ConnectToDB()
+	defer connection.Close()
+
+	selectProductQuery, err := connection.Prepare("SELECT * FROM products WHERE id = $1")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	var quantity int
+	var name, description string
+	var price float64
+	err = selectProductQuery.QueryRow(id).Scan(&id, &name, &description, &price, &quantity)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	return Product{Id: id, Name: name, Description: description, Price: price, Quantity: quantity}
+}
+
 func GetProducts() []Product {
 	connection := db.ConnectToDB()
 	defer connection.Close()
@@ -59,4 +79,16 @@ func DeleteProduct(id int) {
 	}
 
 	deleteProductQuery.Exec(id)
+}
+
+func UpdateProduct(id int, name string, description string, price float64, quantity int) {
+	connection := db.ConnectToDB()
+	defer connection.Close()
+
+	updateProductQuery, err := connection.Prepare("UPDATE products SET name = $1, description = $2, price = $3, quantity = $4 WHERE id = $5")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	updateProductQuery.Exec(name, description, price, quantity, id)
 }
