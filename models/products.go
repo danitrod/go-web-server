@@ -9,7 +9,7 @@ import (
 type Product struct {
 	Name, Description string
 	Price             float64
-	Quantity          int
+	Id, Quantity      int
 }
 
 func GetProducts() []Product {
@@ -31,7 +31,7 @@ func GetProducts() []Product {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		products = append(products, Product{Name: name, Description: description, Price: price, Quantity: quantity})
+		products = append(products, Product{Id: id, Name: name, Description: description, Price: price, Quantity: quantity})
 	}
 
 	return products
@@ -47,4 +47,16 @@ func InsertProduct(name, description string, price float64, quantity int) {
 	}
 
 	insertProductQuery.Exec(name, description, price, quantity)
+}
+
+func DeleteProduct(id int) {
+	connection := db.ConnectToDB()
+	defer connection.Close()
+
+	deleteProductQuery, err := connection.Prepare("DELETE FROM products WHERE id = $1")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	deleteProductQuery.Exec(id)
 }

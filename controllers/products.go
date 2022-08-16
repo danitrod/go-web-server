@@ -41,3 +41,13 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		log.Println("Id int conversion err:", err)
+	}
+	models.DeleteProduct(idInt)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
